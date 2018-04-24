@@ -1,0 +1,6 @@
+/target/
+/.gradle/
+/bin
+/build
+/.idea
+*.iml

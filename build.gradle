@@ -1,0 +1,87 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+buildscript {
+    ext.kotlin_version = '1.2.40' // Required for Kotlin integration
+    ext.spring_boot_version = '2.0.1.RELEASE'
+    repositories {
+        jcenter()
+        mavenLocal()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // Required for Kotlin integration
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
+        // See https://kotlinlang.org/docs/reference/compiler-plugins.html#kotlin-spring-compiler-plugin
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$spring_boot_version"
+        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.0"
+    }
+}
+
+plugins {
+    id 'com.bonitasoft.gradle.bonita-base-plugin' version '0.1.15'
+}
+
+apply plugin: "kotlin" // Required for Kotlin integration
+apply plugin: "kotlin-spring" // See https://kotlinlang.org/docs/reference/compiler-plugins.html#kotlin-spring-compiler-plugin
+apply plugin: "org.springframework.boot"
+apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'maven-publish'
+
+group = 'org.bonitasoft.releng'
+
+junitPlatform {
+    filters {
+        engines {
+            include 'spek'
+        }
+    }
+}
+
+repositories {
+    jcenter()
+    mavenLocal()
+    maven {
+        url 'http://repository.jetbrains.com/all'
+    }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.springframework.boot:spring-boot-starter-web:$spring_boot_version"
+    compile "org.springframework.boot:spring-boot-starter-test:$spring_boot_version"
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf:$spring_boot_version")
+    compile("org.springframework.boot:spring-boot-devtools:$spring_boot_version")
+    testCompile 'org.jetbrains.spek:spek-api:1.1.5'
+    testCompile 'org.jetbrains.spek:spek-junit-platform-engine:1.1.5'
+    testCompile 'org.junit.platform:junit-platform-runner:1.0.0'
+    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+}
+
+scmVersion {
+    tag {
+        initialVersion = { config, position -> '1.0.0' }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name 'bonitaInternal'
+            url 'http://repositories.rd.lan/maven/all/'
+        }
+    }
+
+    publications {
+        bootJava(MavenPublication) {
+            artifact bootJar
+        }
+    }
+}
+
+processResources {
+    from('src/main/resources') {
+        include '*.txt'
+        filter(ReplaceTokens, tokens: [version: project.version])
+    }
+}
