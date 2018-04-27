@@ -85,3 +85,8 @@ processResources {
         filter(ReplaceTokens, tokens: [version: project.version])
     }
 }
+
+bootRun {
+    // to support system properties passed on the commande line:
+    systemProperties System.properties
+}

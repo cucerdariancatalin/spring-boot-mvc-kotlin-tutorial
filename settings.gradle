@@ -6,4 +6,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'bonita-codesign-windows'
+rootProject.name = 'spring-boot-mvc-kotlin-tutorial'
